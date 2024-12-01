@@ -1,0 +1,5 @@
+docker exec -it kafkalocalserver-mysql-1 mysql -u user -p
+
+curl -X POST -H "Content-Type: application/json" --data @mysql-source-connector.json http://localhost:8083/connectors
+
+

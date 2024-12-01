@@ -1,17 +1,25 @@
----
-version: '2'
 services:
+    mysql:
+        image: mysql:8.0
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpassword
+            MYSQL_DATABASE: mydb
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+        ports:
+            - "3306:3306"
+
     broker:
         image: confluentinc/cp-kafka:7.7.1
         hostname: broker
         container_name: broker
         ports:
-        - "9092:9092"
-        - "9101:9101"
+            - "9092:9092"
+            - "9101:9101"
         environment:
             KAFKA_NODE_ID: 1
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
-            KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092'
+            KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:29092,PLAINTEXT_HOST://broker:9092'
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
             KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -24,18 +32,40 @@ services:
             KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
             KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
             KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
-            # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
-            # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
             CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+    # TODO - Fix below config. Currently not running.
+    kafka-connect:
+        image: confluentinc/cp-kafka-connect:7.7.1
+        environment:
+            CONNECT_BOOTSTRAP_SERVERS: broker:29092
+            CONNECT_GROUP_ID: "kafka-connect-group"
+            CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
+            CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
+            CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
+            CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+            CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+            CONNECT_LOG4J_ROOT_LOGLEVEL: DEBUG
+            CONNECT_REST_ADVERTISED_HOST_NAME: localhost
+            CONNECT_REST_PORT: 8083
+            CONNECT_TOPIC_CREATION_TIMEOUT_MS: 60000
+            CONNECT_TOPIC_CREATION_DEFAULT_PARTITIONS: 1
+            CONNECT_TOPIC_CREATION_DEFAULT_REPLICATION_FACTOR: 1
+        ports:
+            - "8083:8083"
+        depends_on:
+            - broker
+            - mysql
 
     ksqldb-server:
         image: confluentinc/cp-ksqldb-server:7.7.1
         hostname: ksqldb-server
         container_name: ksqldb-server
         depends_on:
-        - broker
+            - broker
         ports:
-        - "8088:8088"
+            - "8088:8088"
         environment:
             KSQL_CONFIG_DIR: "/etc/ksql"
             KSQL_BOOTSTRAP_SERVERS: "broker:29092"
@@ -45,7 +75,7 @@ services:
             KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
             KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
             KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
-            KSQL_KSQL_CONNECT_URL: "http://connect:8083"
+            KSQL_KSQL_CONNECT_URL: "kafka-connect:28083"
             KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
             KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
             KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
@@ -54,7 +84,7 @@ services:
         image: confluentinc/cp-ksqldb-cli:7.7.1
         container_name: ksqldb-cli
         depends_on:
-        - broker
-        - ksqldb-server
+            - broker
+            - ksqldb-server
         entrypoint: /bin/sh
         tty: true
