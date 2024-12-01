@@ -6,6 +6,12 @@ kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 p
 kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 partitions 1 --topic orders-topic
 
 
-kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 partitions 1 --topic connect-configs
-kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 partitions 1 --topic connect-offsets
-kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 partitions 1 --topic connect-status
+kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 partitions 1 --topic connect-configs --config cleanup.policy=compact
+kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 partitions 1 --topic connect-offsets --config cleanup.policy=compact
+kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 partitions 1 --topic connect-status --config cleanup.policy=compact
+
+
+
+kafka-topics --bootstrap-server localhost:9092 --topic connect-configs --delete
+kafka-topics --bootstrap-server localhost:9092 --topic connect-offsets --delete
+kafka-topics --bootstrap-server localhost:9092 --topic onnect-status --delete
