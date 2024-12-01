@@ -1,0 +1,3 @@
+docker exec -it kafkalocalserver-kafka-connect-1 bash
+
+confluent-hub install confluentinc/kafka-connect-jdbc:latest

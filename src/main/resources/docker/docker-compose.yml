@@ -51,6 +51,7 @@ services:
             CONNECT_TOPIC_CREATION_TIMEOUT_MS: 60000
             CONNECT_TOPIC_CREATION_DEFAULT_PARTITIONS: 1
             CONNECT_TOPIC_CREATION_DEFAULT_REPLICATION_FACTOR: 1
+            CONNECT_PLUGIN_PATH: /usr/share/java/confluentinc/cp-kafka-connect:7.7.1
         ports:
             - "8083:8083"
         depends_on:
