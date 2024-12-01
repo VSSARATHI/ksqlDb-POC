@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()  // Default Maven repository
+    maven {
+        url "https://packages.confluent.io/maven"  // Add Confluent's Maven repository for KSQL-related artifacts
+    }
+}
+
+dependencies {
+    // Kafka client library (example)
+    implementation 'org.apache.kafka:kafka-clients:3.7.1'
+
+    // ksqlDB client library
+    implementation 'io.confluent.ksql:ksqldb-api-client:7.7.1'
+
+    // Kafka Streams library for stream processing (if needed)
+    implementation 'org.apache.kafka:kafka-streams:3.4.0'  // Adjust the version as needed for compatibility
+
+    // Jackson for JSON processing
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.3'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3'
+
+    // Testing dependencies for JUnit 5
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // Runtime dependency for PostgreSQL (if used for data storage)
+    runtimeOnly 'org.postgresql:postgresql:42.7.2'
+}
+
+test {
+    useJUnitPlatform()  // Ensure tests are run with JUnit 5
+}
+
+// Exclude telemetry-related dependencies if they are not needed
+configurations.all {
+    exclude group: 'io.confluent.observability', module: 'telemetry-api'
+    exclude group: 'io.confluent.observability', module: 'telemetry-client'
+    exclude group: 'io.confluent.cloud', module: 'events-schema'
+}

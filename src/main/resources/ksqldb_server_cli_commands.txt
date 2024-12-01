@@ -1,0 +1,10 @@
+docker exec -it ksqldb-cli ksql http://ksqldb-server:8088 - launch ksqldb cli
+show tables
+show streams
+
+drop table <table_nam>
+drop stream <stream_name>
+
+describe <table_name>
+
+exit
