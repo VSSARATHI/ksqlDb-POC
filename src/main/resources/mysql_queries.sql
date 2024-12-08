@@ -1,6 +1,5 @@
 USE mydb
 
-
 -- Create the 'users' table
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY, -- Primary Key
@@ -9,40 +8,36 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Creation Timestamp
 );
 
--- Insert users
-INSERT INTO users (name, email) VALUES
-('Alice', 'alice@example.com'),
-('Bob', 'bob@example.com');
-
 -- Create the 'orders' table
 CREATE TABLE orders (
     order_id INT AUTO_INCREMENT PRIMARY KEY, -- Primary Key
     user_id INT NOT NULL,                    -- Foreign Key referencing 'users'
     order_date DATE NOT NULL,                -- Date of the Order
-    order_amount DECIMAL(10, 2) NOT NULL,    -- Total Amount of the Order
+    order_amount INT NOT NULL,    -- Total Amount of the Order
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Creation Timestamp
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- Insert users
+INSERT INTO users (name, email) VALUES
+('Alice', 'alice@example.com'),
+('Bob', 'bob@example.com');
 
 DESCRIBE users;
 DESCRIBE orders;
 
 -- Insert orders
 INSERT INTO orders (user_id, order_date, order_amount) VALUES
-(1, '2024-11-30', 120.50),
-(1, '2024-12-01', 75.00),
-(2, '2024-12-01', 50.25);
-
+(1, '2024-11-30', 120),
+(1, '2024-12-01', 75),
+(2, '2024-12-01', 50);
 
 -- Fetch all orders with user details
-SELECT
-    orders.order_id,
-    users.name AS user_name,
-    orders.order_date,
-    orders.total_amount,
-    orders.status
-FROM orders
-INNER JOIN users ON orders.user_id = users.user_id;
-
-
+SELECT o.order_id,
+        u.name,
+        o.order_date,
+        o.order_amount,
+        u.email,
+        u.user_id
+FROM orders o INNER JOIN users u
+ON o.user_id = u.user_id;
