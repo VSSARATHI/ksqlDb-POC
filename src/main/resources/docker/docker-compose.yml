@@ -66,11 +66,17 @@ services:
                 
                 echo "Downloading JDBC drivers"
                 cd /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib
-                curl -L -o /tmp/mysql-connector-java-8.0.33.tar.gz http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.33
+                curl -L -o /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib/mysql-connector-java-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar
                 
                 echo "Launching Kafka Connect worker"
                 sleep infinity & /etc/confluent/docker/run
-                
+
+    cp-kafkacat:
+        image: confluentinc/cp-kafkacat:latest
+        container_name: cp-kafkacat
+        depends_on:
+            - broker
+        entrypoint: /bin/bash -c "while :; do sleep 1000; done"  # Keeps the container running
 
     ksqldb-server:
         image: confluentinc/cp-ksqldb-server:7.7.1

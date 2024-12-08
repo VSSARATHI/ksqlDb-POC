@@ -12,7 +12,7 @@ import java.util.Properties;
 
 public class KafkaConsumerExample {
     private static final String BOOTSTRAP_SERVERS = "localhost:9092";  // Kafka broker address
-    private static final String USER_TOPIC = "users-topic";  // Kafka topic for user data
+    private static final String USER_TOPIC = "mysql-users";  // Kafka topic for user data
     private static final String ORDER_TOPIC = "orders-topic";  // Kafka topic for order data
     private static final String GROUP_ID = "consumer-group-3";  // Consumer group ID
 
@@ -33,7 +33,9 @@ public class KafkaConsumerExample {
         // Set up Jackson ObjectMapper for JSON processing
 
         try (consumer) {
-            consumer.subscribe(Arrays.asList(USER_TOPIC, ORDER_TOPIC));
+            consumer.subscribe(Arrays.asList(USER_TOPIC));
+            System.out.println(consumer.assignment());
+            System.out.println(consumer.endOffsets(consumer.assignment()));
             ObjectMapper objectMapper = new ObjectMapper();
             while (true) {
                 // Poll the consumer for messages
