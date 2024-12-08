@@ -1,6 +1,6 @@
 services:
     mysql:
-        image: mysql:8.0
+        image: mysql
         environment:
             MYSQL_ROOT_PASSWORD: rootpassword
             MYSQL_DATABASE: mydb
@@ -36,10 +36,10 @@ services:
             CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
 
     kafka-connect:
-        image: confluentinc/cp-kafka-connect:7.7.1
+        image: confluentinc/cp-kafka-connect:latest
         environment:
             CONNECT_BOOTSTRAP_SERVERS: broker:29092
-            CONNECT_GROUP_ID: "kafka-connect-group"
+            CONNECT_GROUP_ID: "kafka-connect-group-1"
             CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
             CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
             CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
@@ -51,12 +51,26 @@ services:
             CONNECT_TOPIC_CREATION_TIMEOUT_MS: 60000
             CONNECT_TOPIC_CREATION_DEFAULT_PARTITIONS: 1
             CONNECT_TOPIC_CREATION_DEFAULT_REPLICATION_FACTOR: 1
-            CONNECT_PLUGIN_PATH: /usr/share/java/confluentinc/cp-kafka-connect:7.7.1
+            CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
         ports:
             - "8083:8083"
         depends_on:
             - broker
             - mysql
+        command:
+            - bash
+            - -c
+            - |
+                echo "Installing connector plugins"
+                confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
+                
+                echo "Downloading JDBC drivers"
+                cd /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib
+                curl -L -o /tmp/mysql-connector-java-8.0.33.tar.gz http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.33
+                
+                echo "Launching Kafka Connect worker"
+                sleep infinity & /etc/confluent/docker/run
+                
 
     ksqldb-server:
         image: confluentinc/cp-ksqldb-server:7.7.1

@@ -9,6 +9,11 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Creation Timestamp
 );
 
+-- Insert users
+INSERT INTO users (name, email) VALUES
+('Alice', 'alice@example.com'),
+('Bob', 'bob@example.com');
+
 -- Create the 'orders' table
 CREATE TABLE orders (
     order_id INT AUTO_INCREMENT PRIMARY KEY, -- Primary Key
@@ -22,11 +27,6 @@ CREATE TABLE orders (
 
 DESCRIBE users;
 DESCRIBE orders;
-
--- Insert users
-INSERT INTO users (name, email) VALUES
-('Alice', 'alice@example.com'),
-('Bob', 'bob@example.com');
 
 -- Insert orders
 INSERT INTO orders (user_id, order_date, order_amount) VALUES
